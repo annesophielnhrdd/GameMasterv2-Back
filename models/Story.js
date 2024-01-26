@@ -5,6 +5,7 @@ const playerSchema = mongoose.Schema({
   index: Number,
   name: String,
   character: String,
+  desciption: String,
 });
 
 const storiesSchema = mongoose.Schema(
