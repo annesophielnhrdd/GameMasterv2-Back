@@ -1,16 +1,16 @@
-import { Schema, model } from 'mongoose';
+const mongoose = require('mongoose');
 
-const playerSchema = Schema({
+const playerSchema = mongoose.Schema({
   // Sub-document
   index: Number,
   name: String,
   character: String,
 });
 
-const storiesSchema = Schema(
+const storiesSchema = mongoose.Schema(
   {
     // Main Schema
-    gameMaster: { type: Schema.Types.ObjectId, ref: 'User' }, // Foreign key
+    gameMaster: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Foreign key
     players: [playerSchema],
     title: String,
     lastTimePlayed: Date,
@@ -21,6 +21,6 @@ const storiesSchema = Schema(
   { collection: 'stories' }
 );
 
-const Story = model('Story', storiesSchema);
+const Story = mongoose.model('Story', storiesSchema);
 
-export default Story;
+module.exports = Story;

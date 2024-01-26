@@ -1,13 +1,13 @@
-import { Schema, model } from 'mongoose';
+const mongoose = require('mongoose');
 
-const inProgressStroriesSchema = Schema({
+const inProgressStroriesSchema = mongoose.Schema({
   // Sub-document
   title: String,
   lastTimePlayed: Date,
-  story: { type: Schema.Types.ObjectId, ref: 'Story' }, // Foreign key
+  story: { type: mongoose.Schema.Types.ObjectId, ref: 'Story' }, // Foreign key
 });
 
-const userSchema = Schema(
+const userSchema = mongoose.Schema(
   {
     username: String,
     password: String,
@@ -18,6 +18,6 @@ const userSchema = Schema(
   { collection: 'users' }
 );
 
-const User = model('User', userSchema);
+const User = mongoose.model('User', userSchema);
 
-export default User;
+module.exports = User;
