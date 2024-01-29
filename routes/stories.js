@@ -50,7 +50,7 @@ router.get('/beginning', async (req, res) => {
   }
 });
 
-/* Create a new story. (create the story in stories collection & add datas in inProgressStories of gameMaster user db) */
+/* Create a new story. (create the story in stories collection) */
 router.post('/', async (req, res) => {
   const { token, gameMaster, players, title, context } = req.body;
   const lastTimePlayed = new Date();
@@ -83,23 +83,7 @@ router.post('/', async (req, res) => {
       context,
     });
 
-    // Add story to user's in progress stories list
-    if (createdStory) {
-      await User.updateOne(
-        { token },
-        {
-          $push: {
-            inProgressStrories: {
-              title: createdStory.newtitle,
-              lastTimePlayed: createdStory.lastTimePlayed,
-              story: createdStory._id,
-            },
-          },
-        }
-      );
-    }
-
-    console.error('[BACKEND] DB created story:', createdStory);
+    console.log('[BACKEND] DB created story:', createdStory);
     return res.json({ createdStory });
   } catch (error) {
     // Log & return error message
