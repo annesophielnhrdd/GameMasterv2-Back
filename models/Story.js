@@ -14,8 +14,11 @@ const storiesSchema = mongoose.Schema(
     gameMaster: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Foreign key
     players: [playerSchema],
     title: String,
+    univers: String,
+    style: String,
+    storyLength: Number,
     lastTimePlayed: Date,
-    turn: Number,
+    round: Number,
     playerTurn: Number,
     context: [String],
   },
