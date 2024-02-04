@@ -29,21 +29,21 @@ router.get('/characters/', async (req, res) => {
 /* GET story's beginning.
 Request query params: 
   charactersDescription: one string of all characters names and description, 
-  univers: 'montagne' or 'forêt' or 'ville', 
+  universe: 'montagne' or 'forêt' or 'ville', 
   storyLength: 5 or 10 or 15 or 20 or 25 or 30, 
   style: 'combat' or 'intrigue' or 'exploration'. */
 router.get('/beginning', async (req, res) => {
-  const { charactersDescription, univers, storyLength, round, style } =
+  const { charactersDescription, universe, storyLength, round, style } =
     req.query;
   // console.log('charactersDescription:', charactersDescription);
-  // console.log('univers:', univers);
+  // console.log('universe:', universe);
   // console.log('storyLength:', storyLength);
   // console.log('style:', style);
 
   try {
     const storyBeginning = await storyBeginningCreation(
       charactersDescription,
-      univers,
+      universe,
       storyLength,
       round,
       style
@@ -66,7 +66,7 @@ Request body:
   gameMaster: username, 
   players: payers datas array [{index, name, character desciption}], 
   title: story's title,
-  univers: 'montagne' or 'forêt' or 'ville', 
+  universe: 'montagne' or 'forêt' or 'ville', 
   storyLength: 5 or 10 or 15 or 20 or 25 or 30,
   style: 'combat' or 'intrigue' or 'exploration',
   context: [summary of the story' phases]. */
@@ -76,7 +76,7 @@ router.post('/', async (req, res) => {
     gameMaster,
     players,
     title,
-    univers,
+    universe,
     storyLength,
     style,
     context,
@@ -105,7 +105,7 @@ router.post('/', async (req, res) => {
       gameMaster,
       players,
       title: newtitle,
-      univers,
+      universe,
       storyLength,
       style,
       lastTimePlayed,
@@ -127,7 +127,7 @@ router.post('/', async (req, res) => {
 Request query params: 
   context: summary of the story, 
   charactersDescription: one string of all characters names and description, 
-  univers: 'montagne' or 'forêt' or 'ville', 
+  universe: 'montagne' or 'forêt' or 'ville', 
   storyLength: 5 or 10 or 15 or 20 or 25 or 30, 
   round: number of the current round,
   style: 'combat' or 'intrigue' or 'exploration'. */
@@ -141,7 +141,7 @@ router.get('/summary', async (req, res) => {
     style,
   } = req.query;
   // console.log('charactersDescription:', charactersDescription);
-  // console.log('univers:', univers);
+  // console.log('universe:', universe);
   // console.log('storyLength:', storyLength);
   // console.log('style:', style);
 
