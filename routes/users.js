@@ -3,14 +3,33 @@ var router = express.Router();
 const { checkBody } = require("../modules/checkBody");
 const uid2 = require("uid2");
 const bcrypt = require("bcrypt");
-const Story = require("../models/Game");
+const Game = require("../models/Game");
 const User = require("../models/User");
 
 /* SignUp new user. */
 router.post("/signup", (req, res) => {});
 
-/* SignIp existing user. */
-router.post("/signin", (req, res) => {});
+/* SignIn existing user. */
+router.post("/signin", (req, res) => {
+  if (!checkBody(req.body, ["username", "password"])) {
+    res.json({ result: false, error: "Veuillez remplir tous les champs" });
+    return;
+  }
+
+  User.findOne({ username: req.body.username }).then(user => {
+    if (user && bcrypt.compareSync(req.body.password, user.password)) {
+      res.json({
+        username: user.username,
+        token: user.token,
+        friends: user.friends,
+      });
+    } else {
+      res.status(400).json({
+        error: "Compte introuvable ou mauvais mot de passe",
+      });
+    }
+  });
+});
 
 /* Add a friend */
 router.post("/addFriends", (req, res) => {
