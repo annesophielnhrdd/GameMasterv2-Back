@@ -1,20 +1,20 @@
-const OpenAI = require('openai');
+const OpenAI = require("openai");
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 // const openai = new OpenAI();
 
-const model = 'gpt-3.5-turbo-1106';
+const model = "gpt-3.5-turbo-1106";
 
 async function charactersCreation(players) {
   const messages = [
     {
-      role: 'system',
-      content: `Tu es mon assistant game-master qui connaît sur le bout des doigts l'univers de donjon et dragon.`,
+      role: "system",
+      content: `Tu es mon assistant game-master qui connaît sur le bout des doigts l'univers de donjon et dragon. Tu répondras en français.`,
     },
     {
-      role: 'user',
-      content: `Pour chaque joueur de cette liste : ${players}, crée un fichier json avec un index partant de 0, un name: nom fourni dans la liste, un character: invente nom du personnage dans le jeu et une description: invente un résumée de ses caractéristiques.`,
+      role: "user",
+      content: `Pour chaque joueur de cette liste : ${players}, crée un fichier json avec un index partant de 0, un name: nom fourni dans la liste, un character: invente le prénom du personnage, une description: invente un résumé de ses caractéristiques.`,
     },
   ];
 
@@ -22,7 +22,7 @@ async function charactersCreation(players) {
     const completion = await openai.chat.completions.create({
       model,
       messages,
-      response_format: { type: 'json_object' },
+      response_format: { type: "json_object" },
       max_tokens: 500,
       temperature: 0.7,
     });
@@ -30,10 +30,11 @@ async function charactersCreation(players) {
     const response = completion.choices[0];
     const characters = JSON.parse(response.message.content).joueurs;
 
-    console.log('[BACKEND][OPENAI] created characters:', characters);
+    console.log("[BACKEND][OPENAI] OpenAI response:", response);
+    console.log("[BACKEND][OPENAI] created characters:", characters);
     return characters;
   } catch (error) {
-    console.error('[BACKEND][OPENAI] create characters error:', error);
+    console.error("[BACKEND][OPENAI] create characters error:", error);
   }
 }
 
@@ -43,19 +44,19 @@ Return example :
     {
         "index": 0,
         "name": "Jean",
-        "character": "Eldrin le sorcier",
+        "character": "Eldrin",
         "description": "Eldrin est un sorcier puissant, maître des éléments et manipulateur de la magie noire. Il est aussi connu pour son intelligence et sa ruse, ce qui en fait un redoutable adversaire dans les donjons."
     },
     {
         "index": 1,
         "name": "Viviane",
-        "character": "Sylanna l'elfe archère",
+        "character": "Sylanna",
         "description": "Sylanna est une archère agile et précise, capable de tirer des flèches mortelles à une distance impressionnante. Elle possède également une grande connaissance des plantes et des herbes, utile pour soigner ses compagnons."
     },
     {
         "index": 2,
         "name": "Marie",
-        "character": "Gorim le guerrier nain",
+        "character": "Gorim",
         "description": "Gorim est un guerrier nain redoutable, armé d'une hache gigantesque et protégé par une armure indestructible. Sa force et sa résistance en font un combattant redoutable, prêt à affronter les dangers les plus mortels des donjons."
     }
 ]
@@ -70,19 +71,20 @@ async function storyBeginningCreation(
 ) {
   const messages = [
     {
-      role: 'system',
+      role: "system",
       content: `Tu es mon assistant game-master qui connaît sur le bout des doigts l'univers de donjon et dragon. Tu devras créer l'histoire du jeu de rôles en fonction des informations que je vais te fournir, cette histoire contiendra ${storyLength} phases de jeu et se déroulera plutôt en ${style}. Nous en sommes à la phase ${
         round + 1
-      } du jeu. Chacune de ces phases contiendra un résumé de l'histoire en cours, posant le contexte pour les joueurs, et 3 choix que tu proposera à chaque joueur en fonction de leurs caractéristiques et de leur avancée dans le jeu. La description des personnages est : ${charactersDescription}.`,
+      } du jeu. Chacune de ces phases contiendra un résumé de l'histoire en cours, posant le contexte pour les joueurs, et 3 choix que tu proposera à chaque joueur en fonction de leurs caractéristiques et de leur avancée dans le jeu. La description des personnages est : ${charactersDescription}. Tu répondras en français.`,
     },
     {
-      role: 'user',
-      content: `Crée le début de l'histoire dans l'univers de la ${univers}. Tu renverras un json avec un title : le titre de l'histoire, un storyBeginning : le début de l'histoire assez détaillé, et des choices : 3 choix par joueur qui seront structurés comme ceci : "choices": {
-        "Eldrin": {
-            "choice1": "Lancer un sort d'illusion pour créer une diversion et désorienter l'ennemi.",
-            "choice2": "Utiliser la magie noire pour invoquer des flammes dévastatrices et repousser l'ennemi.",
-            "choice3": "Utiliser la magie des éléments pour créer un mur de glace et bloquer l'ennemi."
-        }}. Sois inventif !`,
+      role: "user",
+      content: `Crée le début de l'histoire dans l'univers de la ${univers}. Tu renverras un json avec un title : le titre de l'histoire, un storyBeginning : le début de l'histoire assez détaillé, et des choices : 3 choix par joueur qui seront structurés comme ceci : "choices": [
+        {"character": "Eldrin","choices": [
+            "Lancer un sort d'illusion pour créer une diversion et désorienter l'ennemi.",
+            "Utiliser la magie noire pour invoquer des flammes dévastatrices et repousser l'ennemi.",
+            "Utiliser la magie des éléments pour créer un mur de glace et bloquer l'ennemi."
+        ]}
+      ]. Sois inventif !`,
     },
   ];
 
@@ -90,7 +92,7 @@ async function storyBeginningCreation(
     const completion = await openai.chat.completions.create({
       model,
       messages,
-      response_format: { type: 'json_object' },
+      response_format: { type: "json_object" },
       max_tokens: 2000,
       temperature: 0.4,
     });
@@ -98,10 +100,10 @@ async function storyBeginningCreation(
     const response = completion.choices[0];
     const storyBeginning = JSON.parse(response.message.content);
 
-    console.log('[BACKEND][OPENAI] created story beginning:', storyBeginning);
+    console.log("[BACKEND][OPENAI] created story beginning:", storyBeginning);
     return storyBeginning;
   } catch (error) {
-    console.error('[BACKEND][OPENAI] create story beginning error:', error);
+    console.error("[BACKEND][OPENAI] create story beginning error:", error);
   }
 }
 
@@ -140,13 +142,13 @@ async function summaryLastPhase(
 ) {
   const messages = [
     {
-      role: 'system',
+      role: "system",
       content: `Tu es mon assistant game-master qui connaît sur le bout des doigts l'univers de donjon et dragon. Tu devras créer l'histoire du jeu de rôles en fonction des informations que je vais te fournir, cette histoire contiendra ${storyLength} phases de jeu et se déroulera plutôt en ${style}. Nous en sommes à la phase ${
         round + 1
-      } du jeu. Chacune de ces phases contiendra un résumé de l'histoire en cours, posant le contexte pour les joueurs, et 3 choix que tu proposera à chaque joueur en fonction de leurs caractéristiques et de leur avancée dans le jeu. La description des personnages est : ${charactersDescription}. Le contexte de l'histoire est : ${context}. Les choix des joueurs pour la phase précédente sont : ${lastChoises}`,
+      } du jeu. Chacune de ces phases contiendra un résumé de l'histoire en cours, posant le contexte pour les joueurs, et 3 choix que tu proposera à chaque joueur en fonction de leurs caractéristiques et de leur avancée dans le jeu. La description des personnages est : ${charactersDescription}. Le contexte de l'histoire est : ${context}. Les choix des joueurs pour la phase précédente sont : ${lastChoises}. Tu répondras en français.`,
     },
     {
-      role: 'user',
+      role: "user",
       content: `Crée un résumé de l'histoire après que chaque joueur ait fait son choix. Tu renverras un json avec une summaryStory : le résumé de l'histoire assez détaillé suite aux choix des joueurs. Sois inventif !`,
     },
   ];
@@ -155,7 +157,7 @@ async function summaryLastPhase(
     const completion = await openai.chat.completions.create({
       model,
       messages,
-      response_format: { type: 'json_object' },
+      response_format: { type: "json_object" },
       // max_tokens: 2000,
       temperature: 0.4,
     });
@@ -163,10 +165,10 @@ async function summaryLastPhase(
     const response = completion.choices[0];
     const storyBeginning = JSON.parse(response.message.content);
 
-    console.log('[BACKEND][OPENAI] created story beginning:', storyBeginning);
+    console.log("[BACKEND][OPENAI] created story beginning:", storyBeginning);
     return storyBeginning;
   } catch (error) {
-    console.error('[BACKEND][OPENAI] create story beginning error:', error);
+    console.error("[BACKEND][OPENAI] create story beginning error:", error);
   }
 }
 
@@ -186,13 +188,13 @@ async function continueStory(
 ) {
   const messages = [
     {
-      role: 'system',
+      role: "system",
       content: `Tu es mon assistant game-master qui connaît sur le bout des doigts l'univers de donjon et dragon. Tu devras créer l'histoire du jeu de rôles en fonction des informations que je vais te fournir, cette histoire contiendra ${storyLength} phases de jeu et se déroulera plutôt en ${style}. Nous en sommes à la phase ${
         round + 1
-      } du jeu. Chacune de ces phases contiendra un résumé de l'histoire en cours, posant le contexte pour les joueurs, et 3 choix que tu proposera à chaque joueur en fonction de leurs caractéristiques et de leur avancée dans le jeu. La description des personnages est : ${charactersDescription}. Le contexte de l'histoire est : ${context}.`,
+      } du jeu. Chacune de ces phases contiendra un résumé de l'histoire en cours, posant le contexte pour les joueurs, et 3 choix que tu proposera à chaque joueur en fonction de leurs caractéristiques et de leur avancée dans le jeu. La description des personnages est : ${charactersDescription}. Le contexte de l'histoire est : ${context}. Tu répondras en français.`,
     },
     {
-      role: 'user',
+      role: "user",
       content: `Crée la suite de l'histoire en te basant sur le contexte de l'histoire en cours, les caractéristiques des personnages et les précèdants choix des joueurs. Tu renverras un json avec une continuationStory : la suite de l'histoire très détaillée, et des choices : 3 choix par joueur qui seront structurés comme ceci : "choices": {
         "Eldrin": {
             "choice1": "Lancer un sort d'illusion pour créer une diversion et désorienter l'ennemi.",
@@ -206,7 +208,7 @@ async function continueStory(
     const completion = await openai.chat.completions.create({
       model,
       messages,
-      response_format: { type: 'json_object' },
+      response_format: { type: "json_object" },
       // max_tokens: 2000,
       temperature: 0.4,
     });
@@ -214,10 +216,10 @@ async function continueStory(
     const response = completion.choices[0];
     const storyBeginning = JSON.parse(response.message.content);
 
-    console.log('[BACKEND][OPENAI] created story beginning:', storyBeginning);
+    console.log("[BACKEND][OPENAI] created story beginning:", storyBeginning);
     return storyBeginning;
   } catch (error) {
-    console.error('[BACKEND][OPENAI] create story beginning error:', error);
+    console.error("[BACKEND][OPENAI] create story beginning error:", error);
   }
 }
 

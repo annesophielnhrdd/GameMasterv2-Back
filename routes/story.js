@@ -1,27 +1,27 @@
-var express = require('express');
+var express = require("express");
 var router = express.Router();
-const Story = require('../models/Story');
-const User = require('../models/User');
+const Story = require("../models/Game");
+const User = require("../models/User");
 const {
   storyBeginningCreation,
   continueStory,
   charactersCreation,
   summaryLastPhase,
-} = require('../openAI/openAI');
+} = require("../openAI/openAI");
 
 /* GET player's characters. 
 Request query params: players names separate with coma. */
-router.get('/characters/', async (req, res) => {
+router.get("/characters/", async (req, res) => {
   const players = req.query.players;
   // console.log('players:', players);
 
   try {
     const createdCharacters = await charactersCreation(players);
 
-    console.log('[BACKEND][STORIES] created characters:', createdCharacters);
+    console.log("[BACKEND][STORIES] created characters:", createdCharacters);
     res.json(createdCharacters);
   } catch (error) {
-    console.error('[BACKEND][STORIES] create characters error:', error);
+    console.error("[BACKEND][STORIES] create characters error:", error);
     res.status(400).json({ error });
   }
 });
@@ -32,7 +32,7 @@ Request query params:
   universe: 'montagne' or 'forêt' or 'ville', 
   storyLength: 5 or 10 or 15 or 20 or 25 or 30, 
   style: 'combat' or 'intrigue' or 'exploration'. */
-router.get('/beginning', async (req, res) => {
+router.get("/beginning", async (req, res) => {
   const { charactersDescription, universe, storyLength, round, style } =
     req.query;
   // console.log('charactersDescription:', charactersDescription);
@@ -60,69 +60,6 @@ router.get('/beginning', async (req, res) => {
   }
 });
 
-/* CREATE a new story. (create the story in stories collection)
-Request body: 
-  token: user's token, 
-  gameMaster: username, 
-  players: payers datas array [{index, name, character desciption}], 
-  title: story's title,
-  universe: 'montagne' or 'forêt' or 'ville', 
-  storyLength: 5 or 10 or 15 or 20 or 25 or 30,
-  style: 'combat' or 'intrigue' or 'exploration',
-  context: [summary of the story' phases]. */
-router.post('/', async (req, res) => {
-  const {
-    token,
-    gameMaster,
-    players,
-    title,
-    universe,
-    storyLength,
-    style,
-    context,
-  } = req.body;
-  const lastTimePlayed = new Date();
-
-  // Check user token
-  const user = await User.findOne({ token });
-
-  if (!user) {
-    return res.status(400).json({ error: 'User not found' });
-  }
-
-  // Check if story's title already exists
-  let newtitle;
-  titleExists = await Story.find({ title: { $regex: title } });
-  if (titleExists.length === 0) {
-    newtitle = title;
-  } else {
-    newtitle = title + ` #${titleExists.length + 1}`;
-  }
-
-  // Save story to DB
-  try {
-    createdStory = await Story.create({
-      gameMaster,
-      players,
-      title: newtitle,
-      universe,
-      storyLength,
-      style,
-      lastTimePlayed,
-      round: 0,
-      playerTurn: 0,
-      context,
-    });
-
-    console.log('[BACKEND] DB created story:', createdStory);
-    return res.json({ createdStory });
-  } catch (error) {
-    // Log & return error message
-    console.error('[BACKEND] DB create story error:', error);
-    return res.status(400).json({ error });
-  }
-});
-
 /* GET story's summary.
 Request query params: 
   context: summary of the story, 
@@ -131,7 +68,7 @@ Request query params:
   storyLength: 5 or 10 or 15 or 20 or 25 or 30, 
   round: number of the current round,
   style: 'combat' or 'intrigue' or 'exploration'. */
-router.get('/summary', async (req, res) => {
+router.get("/summary", async (req, res) => {
   const {
     context,
     charactersDescription,
@@ -171,7 +108,7 @@ Request body:
   storyLength: 5 or 10 or 15 or 20 or 25 or 30,
   round: number of the current round,
   style: 'combat' or 'intrigue' or 'exploration'. */
-router.put('/continuation', async (req, res) => {
+router.put("/continuation", async (req, res) => {
   const { context, charactersDescription, storyLength, round, style } =
     req.body;
   // console.log('context:', context);
@@ -200,11 +137,5 @@ router.put('/continuation', async (req, res) => {
     res.status(400).json({ error });
   }
 });
-
-/* GET stories by user token. */
-router.get('/stories/:token', (req, res) => {});
-
-/* GET story by id. */
-router.get('/story/:id', (req, res) => {});
 
 module.exports = router;
