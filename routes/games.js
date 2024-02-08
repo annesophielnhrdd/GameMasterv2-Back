@@ -62,7 +62,7 @@ router.post("/", async (req, res) => {
     });
 
     console.log("[BACKEND] DB created story:", createdStory);
-    return res.json({ createdStory });
+    return res.json(createdStory);
   } catch (error) {
     // Log & return error message
     console.error("[BACKEND] DB create story error:", error);
