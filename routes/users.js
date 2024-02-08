@@ -7,16 +7,45 @@ const Game = require("../models/Game");
 const User = require("../models/User");
 
 /* SignUp new user. */
-router.post("/signup", (req, res) => {});
+router.post("/signup", (req, res) => {
+  if (!checkBody(req.body, ["username", "password"])) {
+    res.json({ result: false, message: "Veuillez remplir tous les champs" });
+    return;
+  }
+
+  User.findOne({ username: req.body.username }).then((user) => {
+    if (user === null) {
+      const hash = bcrypt.hashSync(req.body.password, 10);
+
+      const newUser = new User({
+        username: req.body.username,
+        password: hash,
+        token: uid2(32),
+        friends: [],
+      });
+
+      newUser.save().then((newDoc) => {
+        res.json({
+          result: true,
+          username: newDoc.username,
+          friends: newDoc.friends,
+          token: newDoc.token,
+        });
+      });
+    } else {
+      res.json({ result: false, message: "Ce compte existe déjà" });
+    }
+  });
+});
 
 /* SignIn existing user. */
 router.post("/signin", (req, res) => {
   if (!checkBody(req.body, ["username", "password"])) {
-    res.json({ result: false, error: "Veuillez remplir tous les champs" });
+    res.json({ result: false, message: "Veuillez remplir tous les champs" });
     return;
   }
 
-  User.findOne({ username: req.body.username }).then(user => {
+  User.findOne({ username: req.body.username }).then((user) => {
     if (user && bcrypt.compareSync(req.body.password, user.password)) {
       res.json({
         username: user.username,
@@ -25,7 +54,7 @@ router.post("/signin", (req, res) => {
       });
     } else {
       res.status(400).json({
-        error: "Compte introuvable ou mauvais mot de passe",
+        message: "Compte introuvable ou mauvais mot de passe",
       });
     }
   });
@@ -39,10 +68,10 @@ router.post("/addFriends", (req, res) => {
     { token },
     { $addToSet: { friends: newFriends } },
     { returnDocument: "after" }
-  ).then(user => {
+  ).then((user) => {
     if (!user) {
-      console.log("error:", error);
-      return res.status(400).json({ error: "User not found" });
+      console.log("message:", message);
+      return res.status(400).json({ message: "User not found" });
     } else {
       return res.json({ user: user.username, friends: user.friends });
     }
@@ -57,10 +86,10 @@ router.delete("/removeFriend", (req, res) => {
     { token },
     { $pull: { friends: friend } },
     { returnDocument: "after" }
-  ).then(user => {
+  ).then((user) => {
     if (!user) {
-      console.log("error:", error);
-      return res.status(400).json({ error: "User not found" });
+      console.log("message:", message);
+      return res.status(400).json({ message: "User not found" });
     } else {
       return res.json({ user: user.username, friends: user.friends });
     }
