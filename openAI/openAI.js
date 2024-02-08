@@ -135,7 +135,7 @@ Return example :
 async function summaryLastPhase(
   context,
   charactersDescription,
-  lastChoises,
+  lastChoices,
   storyLength,
   round,
   style
@@ -145,11 +145,11 @@ async function summaryLastPhase(
       role: "system",
       content: `Tu es mon assistant game-master qui connaît sur le bout des doigts l'univers de donjon et dragon. Tu devras créer l'histoire du jeu de rôles en fonction des informations que je vais te fournir, cette histoire contiendra ${storyLength} phases de jeu et se déroulera plutôt en ${style}. Nous en sommes à la phase ${
         round + 1
-      } du jeu. Chacune de ces phases contiendra un résumé de l'histoire en cours, posant le contexte pour les joueurs, et 3 choix que tu proposera à chaque joueur en fonction de leurs caractéristiques et de leur avancée dans le jeu. La description des personnages est : ${charactersDescription}. Le contexte de l'histoire est : ${context}. Les choix des joueurs pour la phase précédente sont : ${lastChoises}. Tu répondras en français.`,
+      } du jeu. Chacune de ces phases contiendra un résumé de l'histoire en cours, posant le contexte pour les joueurs, et 3 choix que tu proposera à chaque joueur en fonction de leurs caractéristiques et de leur avancée dans le jeu. La description des personnages est : ${charactersDescription}. Le contexte de l'histoire est : ${context}. Les choix des joueurs pour la phase précédente sont : ${lastChoices}. Tu répondras en français.`,
     },
     {
       role: "user",
-      content: `Crée un résumé de l'histoire après que chaque joueur ait fait son choix. Tu renverras un json avec une summaryStory : le résumé de l'histoire assez détaillé suite aux choix des joueurs. Sois inventif !`,
+      content: `Crée un résumé de l'histoire après que chaque joueur ait fait son choix. Tu renverras le résumé de l'histoire assez détaillé suite aux choix des joueurs. Sois inventif !`,
     },
   ];
 
@@ -174,9 +174,7 @@ async function summaryLastPhase(
 
 /* 
 Return example :
-{
-    "summaryStory": "Après avoir utilisé ses pouvoirs magiques pour créer un bouclier de protection contre le blizzard et les éléments déchaînés, Eldrin parvient à protéger le groupe des rafales glaciales qui menaçaient de les emporter. Grâce à ses connaissances des plantes, Sylanna parvient à trouver des herbes médicinales capables de soigner les effets du froid extrême sur le groupe, apaisant ainsi les engelures et les symptômes de gelure. Pendant ce temps, Gorim utilise sa hache pour couper du bois et construire un abri solide pour protéger le groupe du blizzard, assurant ainsi leur survie pendant la tempête. Après avoir surmonté cette épreuve, le groupe se sent prêt à affronter les dangers des Montagnes Maudites et à poursuivre sa quête pour retrouver l'artefact magique convoité."
-}
+"Après avoir utilisé ses pouvoirs magiques pour créer un bouclier de protection contre le blizzard et les éléments déchaînés, Eldrin parvient à protéger le groupe des rafales glaciales qui menaçaient de les emporter. Grâce à ses connaissances des plantes, Sylanna parvient à trouver des herbes médicinales capables de soigner les effets du froid extrême sur le groupe, apaisant ainsi les engelures et les symptômes de gelure. Pendant ce temps, Gorim utilise sa hache pour couper du bois et construire un abri solide pour protéger le groupe du blizzard, assurant ainsi leur survie pendant la tempête. Après avoir surmonté cette épreuve, le groupe se sent prêt à affronter les dangers des Montagnes Maudites et à poursuivre sa quête pour retrouver l'artefact magique convoité."
 */
 
 async function continueStory(
@@ -195,12 +193,13 @@ async function continueStory(
     },
     {
       role: "user",
-      content: `Crée la suite de l'histoire en te basant sur le contexte de l'histoire en cours, les caractéristiques des personnages et les précèdants choix des joueurs. Tu renverras un json avec une continuationStory : la suite de l'histoire très détaillée, et des choices : 3 choix par joueur qui seront structurés comme ceci : "choices": {
-        "Eldrin": {
-            "choice1": "Lancer un sort d'illusion pour créer une diversion et désorienter l'ennemi.",
-            "choice2": "Utiliser la magie noire pour invoquer des flammes dévastatrices et repousser l'ennemi.",
-            "choice3": "Utiliser la magie des éléments pour créer un mur de glace et bloquer l'ennemi."
-        }}. Sois inventif !`,
+      content: `Crée la suite de l'histoire en te basant sur le contexte de l'histoire en cours, les caractéristiques des personnages et les précèdants choix des joueurs. Tu renverras un json avec un storyContinuation : la suite de l'histoire très détaillée, et des choices : 3 choix par joueur qui seront structurés comme ceci : "choices": [
+        {"character": "Eldrin","choices": [
+            "Lancer un sort d'illusion pour créer une diversion et désorienter l'ennemi.",
+            "Utiliser la magie noire pour invoquer des flammes dévastatrices et repousser l'ennemi.",
+            "Utiliser la magie des éléments pour créer un mur de glace et bloquer l'ennemi."
+        ]}
+      ]. Sois inventif !`,
     },
   ];
 
@@ -226,7 +225,7 @@ async function continueStory(
 /* 
 Return example :
 {
-    "continuationStory": "Alors que le groupe s'aventure plus profondément dans les Montagnes Maudites, les parois des cavernes deviennent de plus en plus étroites et sinueuses. Soudain, des grondements sourds résonnent dans les tunnels, annonçant l'arrivée imminente de créatures redoutables. Des yeux luisants émergent des ténèbres, révélant la présence de redoutables loups des neiges, prêts à fondre sur le groupe avec férocité. Les crocs acérés des bêtes brillent d'une lueur menaçante, et leur souffle chaud se mêle à l'air glacial de la montagne. Le groupe se prépare à affronter cette nouvelle menace, sachant que leur agilité et leur force seront mises à rude épreuve dans ce combat impitoyable.",
+    "storyContinuation": "Alors que le groupe s'aventure plus profondément dans les Montagnes Maudites, les parois des cavernes deviennent de plus en plus étroites et sinueuses. Soudain, des grondements sourds résonnent dans les tunnels, annonçant l'arrivée imminente de créatures redoutables. Des yeux luisants émergent des ténèbres, révélant la présence de redoutables loups des neiges, prêts à fondre sur le groupe avec férocité. Les crocs acérés des bêtes brillent d'une lueur menaçante, et leur souffle chaud se mêle à l'air glacial de la montagne. Le groupe se prépare à affronter cette nouvelle menace, sachant que leur agilité et leur force seront mises à rude épreuve dans ce combat impitoyable.",
     "choices": {
         "Eldrin": {
             "choice1": "Lancer un sort d'illusion pour créer une diversion et désorienter les loups des neiges.",

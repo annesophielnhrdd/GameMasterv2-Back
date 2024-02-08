@@ -60,78 +60,105 @@ router.get("/beginning", async (req, res) => {
   }
 });
 
-/* GET story's summary.
-Request query params: 
-  context: summary of the story, 
-  charactersDescription: one string of all characters names and description, 
-  universe: 'montagne' or 'forêt' or 'ville', 
-  storyLength: 5 or 10 or 15 or 20 or 25 or 30, 
-  round: number of the current round,
-  style: 'combat' or 'intrigue' or 'exploration'. */
-router.get("/summary", async (req, res) => {
-  const {
-    context,
-    charactersDescription,
-    lastChoises,
-    storyLength,
-    round,
-    style,
-  } = req.query;
-  // console.log('charactersDescription:', charactersDescription);
-  // console.log('universe:', universe);
-  // console.log('storyLength:', storyLength);
-  // console.log('style:', style);
+// /* GET story's summary.
+// Request query params:
+//   context: summary of the story,
+//   charactersDescription: one string of all characters names and description,
+//   universe: 'montagne' or 'forêt' or 'ville',
+//   storyLength: 5 or 10 or 15 or 20 or 25 or 30,
+//   round: number of the current round,
+//   style: 'combat' or 'intrigue' or 'exploration'. */
+// router.get("/summary", async (req, res) => {
+//   const {
+//     context,
+//     charactersDescription,
+//     lastChoices,
+//     storyLength,
+//     round,
+//     style,
+//   } = req.query;
+//   // console.log('charactersDescription:', charactersDescription);
+//   // console.log('universe:', universe);
+//   // console.log('storyLength:', storyLength);
+//   // console.log('style:', style);
 
-  try {
-    const storySummary = await summaryLastPhase(
-      context,
-      charactersDescription,
-      lastChoises,
-      storyLength,
-      round,
-      style
-    );
+//   try {
+//     const storySummary = await summaryLastPhase(
+//       context,
+//       charactersDescription,
+//       lastChoices,
+//       storyLength,
+//       round,
+//       style
+//     );
 
-    console.log("[BACKEND][STORIES] created story's summary:", storySummary);
-    res.json(storySummary);
-  } catch (error) {
-    console.error("[BACKEND][STORIES] create story's summary error:", error);
-    res.status(400).json({ error });
-  }
-});
+//     console.log("[BACKEND][STORIES] created story's summary:", storySummary);
+//     res.json(storySummary);
+//   } catch (error) {
+//     console.error("[BACKEND][STORIES] create story's summary error:", error);
+//     res.status(400).json({ error });
+//   }
+// });
 
 /* PUT story's continuation.
 Request body: 
   context: summary of the story, 
   charactersDescription: one string of all characters names and description, 
-  lastChoices: last choises for all the characters, 
+  lastChoices: last choices for all the characters, 
   storyLength: 5 or 10 or 15 or 20 or 25 or 30,
   round: number of the current round,
   style: 'combat' or 'intrigue' or 'exploration'. */
 router.put("/continuation", async (req, res) => {
-  const { context, charactersDescription, storyLength, round, style } =
-    req.body;
+  const {
+    context,
+    charactersDescription,
+    lastChoices,
+    storyLength,
+    round,
+    style,
+  } = req.body;
   // console.log('context:', context);
   // console.log('charactersDescription:', charactersDescription);
-  // console.log('lastChoises:', lastChoises);
+  // console.log('lastChoices:', lastChoices);
   // console.log('storyLength:', storyLength);
   // console.log('round:', round);
   // console.log('style:', style);
 
+  let choicesSummary;
+
   try {
-    const storyContinuation = await continueStory(
-      context,
+    choicesSummary = await summaryLastPhase(
+      context.join(" "),
+      charactersDescription,
+      lastChoices,
+      storyLength,
+      round,
+      style
+    );
+
+    console.log("[BACKEND][STORIES] created story's summary:", choicesSummary);
+  } catch (error) {
+    console.error("[BACKEND][STORIES] create story's summary error:", error);
+    res.status(400).json({ error });
+  }
+
+  const newContext = [...context, choicesSummary].join(" ");
+
+  try {
+    const nextPhase = await continueStory(
+      newContext,
       charactersDescription,
       storyLength,
       round,
       style
     );
 
-    console.log(
-      "[BACKEND][STORIES] added story's continuation:",
-      storyContinuation
-    );
-    res.json(storyContinuation);
+    console.log("[BACKEND][STORIES] added story's continuation:", nextPhase);
+    res.json({
+      newChoices: nextPhase.choices,
+      choicesSummary,
+      storyContinuation: nextPhase.storyContinuation,
+    });
   } catch (error) {
     console.error("[BACKEND][STORIES] add story's continuation error:", error);
     res.status(400).json({ error });
